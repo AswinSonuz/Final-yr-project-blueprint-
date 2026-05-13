@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Concrete Crack Detection — Project Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #252535;
+    --accent: #e8ff47;
+    --accent2: #47c8ff;
+    --accent3: #ff6b47;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --phase1: #e8ff47;
+    --phase2: #47c8ff;
+    --phase3: #ff6b47;
+    --phase4: #b847ff;
+    --phase5: #47ffb8;
+    --phase6: #ff47c8;
+    --phase7: #ffa847;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 80% 50%, rgba(232,255,71,0.05) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 20% 80%, rgba(71,200,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    opacity: 0.8;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(38px, 7vw, 88px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 28px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .grid-bg {
+    position: absolute;
+    right: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 500px;
+    height: 500px;
+    opacity: 0.04;
+    background-image: linear-gradient(var(--accent) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--accent) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 60px;
+  }
+
+  section {
+    padding: 80px 60px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 52px;
+  }
+
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    padding-bottom: 4px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(24px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--phase1), var(--phase2), var(--phase3), var(--phase4), var(--phase5), var(--phase6), var(--phase7));
+  }
+
+  .phase {
+    position: relative;
+    margin-bottom: 44px;
+    padding-left: 28px;
+  }
+
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: -36px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--phase-color, var(--accent));
+    box-shadow: 0 0 12px var(--phase-color, var(--accent));
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .phase-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .phase-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+
+  .phase-body {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .task-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .task-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .task-list li::before {
+    content: '→';
+    color: var(--phase-color, var(--accent));
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .deliverable-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: rgba(232,255,71,0.07);
+    color: var(--accent);
+    border: 1px solid rgba(232,255,71,0.2);
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    margin-top: 14px;
+  }
+
+  /* TECH STACK */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .tech-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .tech-card:hover { border-color: var(--accent); }
+
+  .tech-cat {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .tech-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .tech-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* CODE BLOCK */
+  .code-wrap {
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  pre {
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #c8c8e8;
+  }
+
+  .kw { color: #e8ff47; }
+  .fn { color: #47c8ff; }
+  .str { color: #47ffb8; }
+  .cm { color: #555575; }
+  .num { color: #ffa847; }
+
+  /* EVAL TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .metric-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* PROMPT BOX */
+  .prompt-box {
+    background: #0d0d14;
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .prompt-box::before {
+    content: 'MASTER PROMPT';
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    opacity: 0.5;
+  }
+
+  .prompt-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: #d0d0f0;
+    white-space: pre-wrap;
+  }
+
+  /* CHECKLIST */
+  .check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .check-item:hover {
+    border-color: var(--accent);
+  }
+
+  .check-item.done {
+    background: rgba(232,255,71,0.05);
+    border-color: var(--accent);
+  }
+
+  .check-item.done span {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+
+  .check-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--bg);
+    transition: background 0.2s;
+  }
+
+  .check-item.done .check-icon {
+    background: var(--accent);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--accent);
+  }
+
+  .footer-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .footer-copy {
+    width: 100%;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* STREAK SYSTEM */
+  .streak-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .streak-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .streak-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(232,255,71,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .streak-flame {
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 20px rgba(255,160,0,0.5));
+    transition: transform 0.3s;
+  }
+
+  .streak-flame.pulse {
+    animation: flamePulse 0.6s ease;
+  }
+
+  @keyframes flamePulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.3) rotate(-5deg); }
+    70%  { transform: scale(0.95) rotate(3deg); }
+    100% { transform: scale(1); }
+  }
+
+  .streak-count {
+    font-family: 'Syne', sans-serif;
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -3px;
+  }
+
+  .streak-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-top: 4px;
+    margin-bottom: 24px;
+  }
+
+  .streak-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+
+  .streak-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .streak-btn:active { transform: scale(0.97); }
+
+  .streak-btn.done-today {
+    background: var(--border);
+    color: var(--muted);
+    cursor: default;
+  }
+
+  .streak-last {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 12px;
+    letter-spacing: 1px;
+  }
+
+  .streak-week {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .streak-week-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .streak-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+  }
+
+  .streak-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    transition: background 0.2s;
+  }
+
+  .streak-day.active {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+  }
+
+  .streak-day.today {
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .streak-day.today.active {
+    border-color: transparent;
+    color: var(--bg);
+  }
+
+  .streak-day-name {
+    font-size: 8px;
+    opacity: 0.7;
+  }
+
+  .streak-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .streak-stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .streak-stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .streak-stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+  }
+
+  /* HEATMAP */
+  .heatmap-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 5px;
+  }
+
+  .heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    background: var(--border);
+    transition: background 0.2s;
+    position: relative;
+    cursor: default;
+  }
+
+  .heatmap-cell.heat-1 { background: rgba(232,255,71,0.2); }
+  .heatmap-cell.heat-2 { background: rgba(232,255,71,0.45); }
+  .heatmap-cell.heat-3 { background: rgba(232,255,71,0.7); }
+  .heatmap-cell.heat-4 { background: var(--accent); }
+
+  .heatmap-cell:hover::after {
+    content: attr(data-date);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* Toast */
+  .streak-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 28px;
+    border-radius: 40px;
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  .streak-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  @media (max-width: 700px) {
+    .hero, section, footer { padding: 40px 24px; }
+    .check-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 28px; }
+    .streak-stats-row { grid-template-columns: repeat(2, 1fr); }
+    .heatmap-grid { grid-template-columns: repeat(15, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="grid-bg"></div>
+  <p class="hero-tag">// Final Year Project Blueprint</p>
+  <h1>AI Concrete<br><em>Crack Detection</em><br>System</h1>
+  <p class="hero-desc">A complete 7-month roadmap to build, train, and deploy a production-grade YOLOv8-powered pipeline for real-time structural defect detection and segmentation.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-val">7</span><span class="stat-label">Months</span></div>
+    <div class="stat"><span class="stat-val">YOLOv8</span><span class="stat-label">Core Model</span></div>
+    <div class="stat"><span class="stat-val">95%+</span><span class="stat-label">Target Accuracy</span></div>
+    <div class="stat"><span class="stat-val">30fps</span><span class="stat-label">Real-Time</span></div>
+  </div>
+</div>
+
+<!-- PROJECT OVERVIEW -->
+<section>
+  <div class="section-header">
+    <span class="section-num">01 —</span>
+    <h2>Project Overview</h2>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-cat">Problem</div>
+      <div class="tech-name">Structural Safety</div>
+      <div class="tech-desc">Manual inspection of concrete surfaces is slow, inconsistent, and expensive. Cracks signal structural degradation and must be caught early.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-cat">Solution</div>
+      <div class="tech-name">YOLOv8 Vision</div>
+      <div class="tech-desc">YOLOv8-seg detects crack bounding boxes, classifies type, and produces pixel-level masks — all in a single forward pass at 30+ FPS.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-cat">Output</div>
+      <div class="tech-name">Web Dashboard</div>
+      <div class="tech-desc">Upload image → get annotated bounding boxes, crack type label, confidence score, segmentation mask, and severity report.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-cat">Novelty</div>
+      <div class="tech-name">Detection + Severity</div>
+      <div class="tech-desc">Not just detection — classify crack as hairline, structural, fatigue, or spalling AND compute a 1–5 severity score from mask area.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section>
+  <div class="section-header">
+    <span class="section-num">02 —</span>
+    <h2>Technology Stack</h2>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="tech-cat">Language</div><div class="tech-name">Python 3.10+</div><div class="tech-desc">Primary language for all ML, data, and backend work.</div></div>
+    <div class="tech-card"><div class="tech-cat">Core Model</div><div class="tech-name">YOLOv8-seg</div><div class="tech-desc">Ultralytics YOLOv8 segmentation variant — bounding boxes + pixel masks + classification in one shot.</div></div>
+    <div class="tech-card"><div class="tech-cat">Pre-trained Weights</div><div class="tech-name">yolov8n-seg.pt</div><div class="tech-desc">Start from COCO-pretrained nano/small weights, fine-tune on crack dataset via transfer learning.</div></div>
+    <div class="tech-card"><div class="tech-cat">Annotation Tool</div><div class="tech-name">RoboFlow</div><div class="tech-desc">Draw bounding boxes + polygons online, auto-export in YOLO format. Free tier supports this project.</div></div>
+    <div class="tech-card"><div class="tech-cat">Data Augmentation</div><div class="tech-name">Albumentations</div><div class="tech-desc">Built into Ultralytics training pipeline — flip, mosaic, mixup, HSV shifts, perspective.</div></div>
+    <div class="tech-card"><div class="tech-cat">Explainability</div><div class="tech-name">YOLO Heatmaps</div><div class="tech-desc">Ultralytics built-in saliency maps + predicted mask overlays shown directly on output images.</div></div>
+    <div class="tech-card"><div class="tech-cat">API Backend</div><div class="tech-name">FastAPI</div><div class="tech-desc">REST API — accepts image upload, runs YOLO inference, returns JSON + annotated image.</div></div>
+    <div class="tech-card"><div class="tech-cat">Frontend</div><div class="tech-name">React + TailwindCSS</div><div class="tech-desc">Upload interface, result dashboard, bounding box + mask overlay viewer.</div></div>
+    <div class="tech-card"><div class="tech-cat">Deployment</div><div class="tech-name">Docker + AWS/GCP</div><div class="tech-desc">Containerized deployment — Ultralytics Docker image available out of the box.</div></div>
+    <div class="tech-card"><div class="tech-cat">Experiment Tracking</div><div class="tech-name">MLflow / W&B</div><div class="tech-desc">Ultralytics natively integrates with W&B — auto-logs mAP, loss curves, confusion matrix.</div></div>
+    <div class="tech-card"><div class="tech-cat">Dataset</div><div class="tech-name">SDNET2018 + RoboFlow</div><div class="tech-desc">56k images re-annotated with bounding boxes via RoboFlow. Export directly as YOLOv8 format.</div></div>
+    <div class="tech-card"><div class="tech-cat">Notebook</div><div class="tech-name">Jupyter / Colab</div><div class="tech-desc">Ultralytics has official Colab notebooks — GPU training in minutes, no setup needed.</div></div>
+  </div>
+</section>
+
+<!-- 7-MONTH TIMELINE -->
+<section>
+  <div class="section-header">
+    <span class="section-num">03 —</span>
+    <h2>7-Month Timeline</h2>
+  </div>
+
+  <div class="timeline">
+
+    <!-- MONTH 1 -->
+    <div class="phase" style="--phase-color: var(--phase1)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 01</span>
+        <span class="phase-title">Research & Setup</span>
+        <span class="phase-badge" style="color:var(--phase1); border-color:var(--phase1)">FOUNDATION</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Literature review: read 5–8 papers on crack detection + YOLO object detection</li>
+          <li>Understand YOLO architecture: anchor boxes, neck (FPN+PAN), segmentation head</li>
+          <li>Study YOLOv8 vs YOLOv5 vs YOLOv9 — understand why v8 is the right choice</li>
+          <li>Setup Python environment: ultralytics, OpenCV, FastAPI, Docker, RoboFlow</li>
+          <li>Download SDNET2018 dataset from Kaggle — understand folder structure</li>
+          <li>Write Problem Statement, Objectives, and Scope in project report</li>
+          <li>Define crack classes: No Crack / Hairline / Structural / Fatigue / Spalling</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: Literature Review + Project Report Chapter 1</span>
+      </div>
+    </div>
+
+    <!-- MONTH 2 -->
+    <div class="phase" style="--phase-color: var(--phase2)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 02</span>
+        <span class="phase-title">Data Collection & Preprocessing</span>
+        <span class="phase-badge" style="color:var(--phase2); border-color:var(--phase2)">DATA</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Finalize dataset: SDNET2018 + CrackForest + optional campus photos</li>
+          <li>Annotate 1000–2000 images with bounding boxes + polygon masks in RoboFlow</li>
+          <li>Export dataset from RoboFlow in YOLOv8 format (auto-generates .yaml config)</li>
+          <li>Apply augmentations in RoboFlow: flip, rotate, brightness, blur, crop</li>
+          <li>Split dataset: 70% train / 15% val / 15% test — RoboFlow does this automatically</li>
+          <li>Visualize annotations with OpenCV — confirm box + mask quality</li>
+          <li>Check class balance — add more samples for underrepresented crack types</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: Annotated Dataset (YOLO format) + crack_dataset.yaml + Report Chapter 2</span>
+      </div>
+    </div>
+
+    <!-- MONTH 3 -->
+    <div class="phase" style="--phase-color: var(--phase3)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 03</span>
+        <span class="phase-title">YOLOv8 Model Training</span>
+        <span class="phase-badge" style="color:var(--phase3); border-color:var(--phase3)">MODEL v1</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Start with YOLOv8n (nano) — fast to iterate, then upgrade to YOLOv8s or YOLOv8m</li>
+          <li>Run first training: model.train(data='crack.yaml', epochs=100, imgsz=640)</li>
+          <li>Monitor mAP50, mAP50-95, box loss, cls loss, seg loss per epoch</li>
+          <li>Use W&B or Ultralytics built-in plots to visualize training curves</li>
+          <li>Implement early stopping, LR warmup, and cosine LR decay (built-in to Ultralytics)</li>
+          <li>Achieve mAP50 ≥ 0.85 on validation before moving on</li>
+          <li>Test predictions visually — check bounding boxes drawn correctly on crack images</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: Trained YOLOv8 .pt weights + Training Results Notebook</span>
+      </div>
+    </div>
+
+    <!-- MONTH 4 -->
+    <div class="phase" style="--phase-color: var(--phase4)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 04</span>
+        <span class="phase-title">Segmentation + Severity Scoring</span>
+        <span class="phase-badge" style="color:var(--phase4); border-color:var(--phase4)">MODEL v2</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Switch to YOLOv8-seg model — retrain with polygon mask annotations from RoboFlow</li>
+          <li>YOLOv8-seg outputs both bounding box AND pixel mask — replaces separate U-Net entirely</li>
+          <li>Compute crack severity: mask pixel area ÷ image area → map to score 1–5</li>
+          <li>Compute crack width and length from predicted mask contours using OpenCV</li>
+          <li>Evaluate segmentation with mAP (mask), IoU, and Dice coefficient</li>
+          <li>Run model on 50+ test images — qualitative review of mask accuracy</li>
+          <li>Compare YOLOv8n-seg vs YOLOv8s-seg — pick best accuracy/speed tradeoff</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: YOLOv8-seg .pt weights + Severity Module + Unified Inference Script</span>
+      </div>
+    </div>
+
+    <!-- MONTH 5 -->
+    <div class="phase" style="--phase-color: var(--phase5)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 05</span>
+        <span class="phase-title">Backend API Development</span>
+        <span class="phase-badge" style="color:var(--phase5); border-color:var(--phase5)">BACKEND</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Build FastAPI application with /predict endpoint (POST image → JSON result)</li>
+          <li>Load model at startup, preprocess input, run inference, return structured response</li>
+          <li>Response JSON: crack_detected, crack_type, confidence, severity_score, mask_image_b64</li>
+          <li>Add /health and /metadata endpoints for monitoring</li>
+          <li>Dockerize the backend application with proper dependencies</li>
+          <li>Test API with Postman and Python requests library</li>
+          <li>Handle errors: corrupt images, wrong formats, model failures</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: Working FastAPI Docker Container + API Documentation</span>
+      </div>
+    </div>
+
+    <!-- MONTH 6 -->
+    <div class="phase" style="--phase-color: var(--phase6)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 06</span>
+        <span class="phase-title">Frontend Dashboard + Integration</span>
+        <span class="phase-badge" style="color:var(--phase6); border-color:var(--phase6)">FRONTEND</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Build React dashboard: drag-and-drop image upload, loading state, results panel</li>
+          <li>Display YOLO-annotated image — bounding boxes + colored segmentation mask overlay</li>
+          <li>Show crack type badge, severity gauge (1–5), confidence percentage, crack dimensions</li>
+          <li>Add batch upload: process multiple images and download CSV report</li>
+          <li>Mobile-responsive — should work on a phone camera workflow</li>
+          <li>Connect frontend to FastAPI backend — full end-to-end test</li>
+          <li>Optional: Add live webcam mode — stream frames to YOLO every 500ms</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: Complete Web Application + Demo Video</span>
+      </div>
+    </div>
+
+    <!-- MONTH 7 -->
+    <div class="phase" style="--phase-color: var(--phase7)">
+      <div class="phase-header">
+        <span class="phase-num">MONTH 07</span>
+        <span class="phase-title">Evaluation, Deployment & Report</span>
+        <span class="phase-badge" style="color:var(--phase7); border-color:var(--phase7)">FINALIZE</span>
+      </div>
+      <div class="phase-body">
+        <h3>Goals</h3>
+        <ul class="task-list">
+          <li>Final model benchmarking: accuracy, F1, precision, recall, IoU, inference time</li>
+          <li>Compare with baseline models (logistic regression, basic CNN) — show improvement</li>
+          <li>Deploy to AWS EC2 / GCP Compute Engine or use Render/Railway for free tier</li>
+          <li>Write full project report: Abstract → Intro → Literature → Methodology → Results → Conclusion</li>
+          <li>Prepare presentation slides (10–15 slides with demo screenshots)</li>
+          <li>Prepare live demo walkthrough for viva</li>
+          <li>Push all code to GitHub with README, requirements.txt, and usage instructions</li>
+        </ul>
+        <span class="deliverable-tag">✓ DELIVERABLE: Deployed App + Full Report + GitHub Repo + Presentation</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EVALUATION METRICS -->
+<section>
+  <div class="section-header">
+    <span class="section-num">04 —</span>
+    <h2>Evaluation Metrics</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Task</th>
+        <th>Target</th>
+        <th>Progress</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mAP50</td>
+        <td>Detection</td>
+        <td>≥ 0.85</td>
+        <td><div class="metric-bar"><div class="bar-bg"><div class="bar-fill" style="width:85%"></div></div><span>0.85</span></div></td>
+      </tr>
+      <tr>
+        <td>mAP50-95</td>
+        <td>Detection</td>
+        <td>≥ 0.65</td>
+        <td><div class="metric-bar"><div class="bar-bg"><div class="bar-fill" style="width:65%"></div></div><span>0.65</span></div></td>
+      </tr>
+      <tr>
+        <td>mAP (mask)</td>
+        <td>Segmentation</td>
+        <td>≥ 0.75</td>
+        <td><div class="metric-bar"><div class="bar-bg"><div class="bar-fill" style="width:75%"></div></div><span>0.75</span></div></td>
+      </tr>
+      <tr>
+        <td>Precision</td>
+        <td>Detection</td>
+        <td>≥ 0.90</td>
+        <td><div class="metric-bar"><div class="bar-bg"><div class="bar-fill" style="width:90%"></div></div><span>0.90</span></div></td>
+      </tr>
+      <tr>
+        <td>Recall</td>
+        <td>Detection</td>
+        <td>≥ 0.88</td>
+        <td><div class="metric-bar"><div class="bar-bg"><div class="bar-fill" style="width:88%"></div></div><span>0.88</span></div></td>
+      </tr>
+      <tr>
+        <td>Inference Time</td>
+        <td>API Response</td>
+        <td>≤ 1 second</td>
+        <td><div class="metric-bar"><div class="bar-bg"><div class="bar-fill" style="width:95%"></div></div><span>&lt;1s</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CORE CODE -->
+<section>
+  <div class="section-header">
+    <span class="section-num">05 —</span>
+    <h2>Core Code Architecture</h2>
+  </div>
+
+  <h3>1. Dataset YAML Config</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">YAML — crack_dataset.yaml</span></div>
+    <pre><span class="cm"># crack_dataset.yaml — YOLO dataset config</span>
+<span class="cm"># Export this directly from RoboFlow in YOLOv8 format</span>
+
+path: /content/crack_dataset   <span class="cm"># root dir (Colab path)</span>
+train: images/train
+val:   images/val
+test:  images/test
+
+nc: <span class="num">5</span>   <span class="cm"># number of classes</span>
+names:
+  <span class="num">0</span>: no_crack
+  <span class="num">1</span>: hairline
+  <span class="num">2</span>: structural
+  <span class="num">3</span>: fatigue
+  <span class="num">4</span>: spalling
+
+<span class="cm"># Each image needs a corresponding .txt label file:</span>
+<span class="cm"># class_id  cx  cy  w  h  (for detection)</span>
+<span class="cm"># class_id  cx  cy  w  h  x1 y1 x2 y2 ... (for segmentation)</span>
+<span class="cm"># All values normalized 0–1. RoboFlow generates these automatically.</span></pre>
+  </div>
+
+  <h3 style="margin-top:32px">2. Training — 3 Lines with Ultralytics</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">PYTHON — train.py</span></div>
+    <pre><span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
+
+<span class="cm"># Load pretrained YOLOv8 segmentation model (COCO weights)</span>
+model = <span class="fn">YOLO</span>(<span class="str">'yolov8s-seg.pt'</span>)   <span class="cm"># n=nano, s=small, m=medium</span>
+
+<span class="cm"># Train — Ultralytics handles augmentation, LR schedule, logging</span>
+results = model.<span class="fn">train</span>(
+    data=<span class="str">'crack_dataset.yaml'</span>,
+    epochs=<span class="num">100</span>,
+    imgsz=<span class="num">640</span>,
+    batch=<span class="num">16</span>,
+    device=<span class="str">'0'</span>,              <span class="cm"># GPU; use 'cpu' if no GPU</span>
+    patience=<span class="num">20</span>,             <span class="cm"># early stopping</span>
+    save=<span class="kw">True</span>,
+    project=<span class="str">'crack_runs'</span>,
+    name=<span class="str">'yolov8s_seg_v1'</span>,
+    exist_ok=<span class="kw">True</span>,
+    plots=<span class="kw">True</span>,              <span class="cm"># saves confusion matrix, PR curve</span>
+    val=<span class="kw">True</span>
+)
+
+<span class="cm"># Results auto-saved to crack_runs/yolov8s_seg_v1/</span>
+<span class="cm"># Best weights at: crack_runs/yolov8s_seg_v1/weights/best.pt</span>
+<span class="fn">print</span>(f<span class="str">"mAP50: {results.results_dict['metrics/mAP50(B)']:.4f}"</span>)
+<span class="fn">print</span>(f<span class="str">"mAP50-95: {results.results_dict['metrics/mAP50-95(B)']:.4f}"</span>)</pre>
+  </div>
+
+  <h3 style="margin-top:32px">3. Inference + Severity Scoring</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">PYTHON — inference.py</span></div>
+    <pre><span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
+<span class="kw">import</span> cv2, numpy <span class="kw">as</span> np
+
+CLASS_NAMES = [<span class="str">'No Crack'</span>, <span class="str">'Hairline'</span>, <span class="str">'Structural'</span>, <span class="str">'Fatigue'</span>, <span class="str">'Spalling'</span>]
+
+model = <span class="fn">YOLO</span>(<span class="str">'crack_runs/yolov8s_seg_v1/weights/best.pt'</span>)
+
+<span class="kw">def</span> <span class="fn">compute_severity</span>(mask_pixels, img_pixels):
+    ratio = mask_pixels / img_pixels
+    <span class="kw">if</span> ratio &lt; <span class="num">0.01</span>:   <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">elif</span> ratio &lt; <span class="num">0.03</span>: <span class="kw">return</span> <span class="num">2</span>
+    <span class="kw">elif</span> ratio &lt; <span class="num">0.07</span>: <span class="kw">return</span> <span class="num">3</span>
+    <span class="kw">elif</span> ratio &lt; <span class="num">0.15</span>: <span class="kw">return</span> <span class="num">4</span>
+    <span class="kw">else</span>:               <span class="kw">return</span> <span class="num">5</span>
+
+<span class="kw">def</span> <span class="fn">predict_image</span>(image_path):
+    results = model.<span class="fn">predict</span>(image_path, conf=<span class="num">0.4</span>, iou=<span class="num">0.5</span>)[<span class="num">0</span>]
+    img = cv2.<span class="fn">imread</span>(image_path)
+    H, W = img.shape[:<span class="num">2</span>]
+    detections = []
+
+    <span class="kw">for</span> i, box <span class="kw">in</span> enumerate(results.boxes):
+        cls_id   = <span class="fn">int</span>(box.cls[<span class="num">0</span>])
+        conf     = <span class="fn">float</span>(box.conf[<span class="num">0</span>])
+        mask     = results.masks.data[i].<span class="fn">numpy</span>() <span class="kw">if</span> results.masks <span class="kw">else</span> <span class="kw">None</span>
+        severity = <span class="fn">compute_severity</span>(mask.<span class="fn">sum</span>(), H*W) <span class="kw">if</span> mask <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">else</span> <span class="num">0</span>
+
+        detections.<span class="fn">append</span>({
+            <span class="str">'crack_type'</span>:  CLASS_NAMES[cls_id],
+            <span class="str">'confidence'</span>:  <span class="fn">round</span>(conf * <span class="num">100</span>, <span class="num">2</span>),
+            <span class="str">'severity'</span>:    severity,
+            <span class="str">'bbox'</span>:        box.xyxy[<span class="num">0</span>].<span class="fn">tolist</span>()
+        })
+
+    <span class="cm"># Save annotated image</span>
+    annotated = results.<span class="fn">plot</span>()   <span class="cm"># draws boxes + masks automatically</span>
+    cv2.<span class="fn">imwrite</span>(<span class="str">'output_annotated.jpg'</span>, annotated)
+    <span class="kw">return</span> detections, annotated</pre>
+  </div>
+
+  <h3 style="margin-top:32px">4. FastAPI Endpoint</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">PYTHON — api.py</span></div>
+    <pre><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, UploadFile, File
+<span class="kw">from</span> fastapi.middleware.cors <span class="kw">import</span> CORSMiddleware
+<span class="kw">import</span> io, base64, cv2, numpy <span class="kw">as</span> np
+<span class="kw">from</span> PIL <span class="kw">import</span> Image
+<span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
+<span class="kw">from</span> inference <span class="kw">import</span> <span class="fn">predict_image</span>, <span class="fn">compute_severity</span>
+
+app = <span class="fn">FastAPI</span>(title=<span class="str">"Crack Detection API"</span>, version=<span class="str">"2.0"</span>)
+app.<span class="fn">add_middleware</span>(CORSMiddleware, allow_origins=[<span class="str">"*"</span>])
+
+model = <span class="fn">YOLO</span>(<span class="str">"best.pt"</span>)   <span class="cm"># loaded once at startup</span>
+
+<span class="kw">@</span>app.<span class="fn">post</span>(<span class="str">"/predict"</span>)
+<span class="kw">async def</span> <span class="fn">predict</span>(file: UploadFile = <span class="fn">File</span>(...)):
+    contents = <span class="kw">await</span> file.<span class="fn">read</span>()
+    nparr = np.<span class="fn">frombuffer</span>(contents, np.uint8)
+    img   = cv2.<span class="fn">imdecode</span>(nparr, cv2.IMREAD_COLOR)
+
+    results  = model.<span class="fn">predict</span>(img, conf=<span class="num">0.4</span>)[<span class="num">0</span>]
+    annotated = results.<span class="fn">plot</span>()   <span class="cm"># boxes + masks drawn</span>
+    _, buffer  = cv2.<span class="fn">imencode</span>(<span class="str">'.jpg'</span>, annotated)
+    img_b64    = base64.<span class="fn">b64encode</span>(buffer).<span class="fn">decode</span>()
+
+    detections = []
+    H, W = img.shape[:<span class="num">2</span>]
+    <span class="kw">for</span> i, box <span class="kw">in</span> enumerate(results.boxes):
+        mask     = results.masks.data[i].<span class="fn">numpy</span>() <span class="kw">if</span> results.masks <span class="kw">else</span> <span class="kw">None</span>
+        severity = <span class="fn">compute_severity</span>(mask.<span class="fn">sum</span>(), H*W) <span class="kw">if</span> mask <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">else</span> <span class="num">0</span>
+        detections.<span class="fn">append</span>({
+            <span class="str">"crack_type"</span>: CLASS_NAMES[<span class="fn">int</span>(box.cls[<span class="num">0</span>])],
+            <span class="str">"confidence"</span>: <span class="fn">round</span>(<span class="fn">float</span>(box.conf[<span class="num">0</span>]) * <span class="num">100</span>, <span class="num">2</span>),
+            <span class="str">"severity"</span>:   severity,
+            <span class="str">"bbox"</span>:       box.xyxy[<span class="num">0</span>].<span class="fn">tolist</span>()
+        })
+
+    <span class="kw">return</span> {
+        <span class="str">"crack_detected"</span>: <span class="fn">len</span>(detections) &gt; <span class="num">0</span>,
+        <span class="str">"detections"</span>:     detections,
+        <span class="str">"annotated_image"</span>: img_b64
+    }</pre>
+  </div>
+
+</section>
+
+<!-- MASTER PROMPT -->
+<section>
+  <div class="section-header">
+    <span class="section-num">06 —</span>
+    <h2>Master AI Prompt</h2>
+  </div>
+  <p style="color:var(--muted); margin-bottom:24px; font-size:14px">Copy this prompt and paste it into any AI (Claude, ChatGPT, Gemini) whenever you need help at any stage of this project. It gives the AI full context to assist you precisely.</p>
+
+  <div class="prompt-box">
+    <div class="prompt-text">I am a final-year engineering student building an AI-based image processing system to automatically detect and classify cracks in concrete surfaces using camera images. This is a 7-month academic project.
+
+PROJECT OVERVIEW:
+- Input: Camera images of concrete surfaces (walls, bridges, floors)
+- Output: Crack bounding boxes, crack type (Hairline / Structural / Fatigue / Spalling / No Crack), severity score (1–5), and segmentation mask overlay
+- Goal: Real-time detection at 30+ FPS with mAP50 ≥ 0.85
+
+TECH STACK:
+- Language: Python 3.10
+- Core Model: YOLOv8-seg (Ultralytics) — handles detection + segmentation in one model
+- Annotation: RoboFlow (bounding boxes + polygon masks, exported in YOLO format)
+- Dataset: SDNET2018 (56k images, annotated via RoboFlow) + CrackForest
+- Backend: FastAPI (REST API, Docker containerized)
+- Frontend: React + TailwindCSS
+- Tracking: Weights & Biases (built into Ultralytics)
+- Deployment: AWS EC2 / Docker
+
+YOLO-SPECIFIC NOTES:
+- Training: model = YOLO('yolov8s-seg.pt'); model.train(data='crack.yaml', epochs=100, imgsz=640)
+- Inference: results = model.predict(img, conf=0.4); annotated = results[0].plot()
+- Severity scoring: compute mask pixel area / image area → map to 1–5 scale
+- No separate U-Net or ResNet needed — YOLOv8-seg replaces both
+
+CURRENT PHASE: [REPLACE WITH: Month 1 Setup / Month 2 Annotation / Month 3 Training / Month 4 Segmentation+Severity / Month 5 API / Month 6 Frontend / Month 7 Final]
+
+CURRENT TASK: [DESCRIBE EXACTLY WHAT YOU NEED HELP WITH]
+
+Please help me with the above task. Provide working, production-quality Python/JavaScript code with comments. If I'm debugging, I'll paste the error below. If I'm asking for a concept, explain it with concrete examples relevant to crack detection.</div>
+  </div>
+</section>
+
+<!-- WEEK-BY-WEEK CHECKLIST -->
+<section>
+  <div class="section-header">
+    <span class="section-num">07 —</span>
+    <h2>Weekly Milestone Checklist</h2>
+  </div>
+  <div class="check-grid">
+    <div class="check-item"><div class="check-icon"></div><span>W1–2: Environment setup + YOLOv8 architecture study complete</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W3–4: SDNET2018 downloaded + RoboFlow account set up</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W5–6: 1000+ images annotated with boxes + masks in RoboFlow</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W7–8: Dataset exported in YOLOv8 format + crack_dataset.yaml ready</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W9–10: First YOLOv8n training run complete on Colab GPU</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W11–12: YOLOv8s-seg fine-tuned (mAP50 ≥ 0.85)</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W13–14: Severity scoring module built + tested on 50+ images</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W15–16: Segmentation masks verified — IoU ≥ 0.75 on test set</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W17–18: Unified inference script complete (boxes + masks + severity)</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W19–20: FastAPI /predict endpoint live + tested with Postman</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W21–22: Docker container built + running locally</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W23–24: React frontend complete + integrated with API end-to-end</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W25–26: Final benchmarking done + project report written</span></div>
+    <div class="check-item"><div class="check-icon"></div><span>W27–28: Deployed + GitHub README + Presentation + Demo Video ready</span></div>
+  </div>
+</section>
+
+<!-- STREAK SYSTEM -->
+<section id="streak-section">
+  <div class="section-header">
+    <span class="section-num">09 —</span>
+    <h2>Daily Study Streak</h2>
+  </div>
+
+  <div class="streak-dashboard">
+    <!-- Flame + Count -->
+    <div class="streak-hero">
+      <div class="streak-flame" id="streakFlame">🔥</div>
+      <div class="streak-count" id="streakCount">0</div>
+      <div class="streak-label">DAY STREAK</div>
+      <button class="streak-btn" id="streakBtn">Mark Today Complete</button>
+      <div class="streak-last" id="streakLast">No activity yet</div>
+    </div>
+
+    <!-- Weekly grid -->
+    <div class="streak-week">
+      <div class="streak-week-label">THIS WEEK</div>
+      <div class="streak-days" id="streakDays"></div>
+    </div>
+
+    <!-- Best streak + total -->
+    <div class="streak-stats-row">
+      <div class="streak-stat-box">
+        <div class="streak-stat-val" id="bestStreak">0</div>
+        <div class="streak-stat-label">BEST STREAK</div>
+      </div>
+      <div class="streak-stat-box">
+        <div class="streak-stat-val" id="totalDays">0</div>
+        <div class="streak-stat-label">TOTAL DAYS</div>
+      </div>
+      <div class="streak-stat-box">
+        <div class="streak-stat-val" id="checkCount">0</div>
+        <div class="streak-stat-label">TASKS DONE</div>
+      </div>
+      <div class="streak-stat-box">
+        <div class="streak-stat-val" id="pctDone">0%</div>
+        <div class="streak-stat-label">PROGRESS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly heatmap -->
+  <div class="heatmap-wrap">
+    <div class="streak-week-label" style="margin-bottom:16px">ACTIVITY HEATMAP — LAST 30 DAYS</div>
+    <div class="heatmap-grid" id="heatmapGrid"></div>
+  </div>
+</section>
+
+<!-- DATASETS -->
+<section>
+  <div class="section-header">
+    <span class="section-num">08 —</span>
+    <h2>Datasets & Resources</h2>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-cat">Primary Dataset</div>
+      <div class="tech-name">SDNET2018</div>
+      <div class="tech-desc">56,000+ images of cracked/non-cracked concrete. Download from Kaggle, then re-annotate a subset with boxes in RoboFlow.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-cat">Secondary Dataset</div>
+      <div class="tech-name">CrackForest</div>
+      <div class="tech-desc">Road crack dataset with pixel-level annotations — great extra data for segmentation fine-tuning.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-cat">Annotation Platform</div>
+      <div class="tech-name">RoboFlow</div>
+      <div class="tech-desc">Free online tool to draw boxes + polygon masks, augment, and export directly in YOLOv8 format with one click.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-cat">Key Papers</div>
+      <div class="tech-name">Research to Read</div>
+      <div class="tech-desc">"YOLOv8" (Ultralytics 2023), "DeepCrack" (2019), "CrackForest" (2014) — search Google Scholar / arXiv.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">CRACK.AI — Project Blueprint</div>
+    <div class="footer-note">7-MONTH ROADMAP · AI IMAGE PROCESSING · FINAL YEAR PROJECT</div>
+  </div>
+  <div class="footer-copy">PROPERTY OF GROUP 10 &nbsp;·&nbsp; COPY ADIKUNAVAR GAY</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('done');
+      const icon = item.querySelector('.check-icon');
+      icon.textContent = item.classList.contains('done') ? '✓' : '';
+    });
+  });
+</script>
+
+</body>
+</html>
